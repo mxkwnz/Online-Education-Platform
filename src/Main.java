@@ -39,7 +39,7 @@ public class Main {
             }
         }
 
-        Student student = new Student(username, password, courseNumber);
+        Student student = new Student(username, courseNumber);
         allStudents.add(student);
 
         System.out.println("\nLogin successful! Welcome " + student.getUsername());

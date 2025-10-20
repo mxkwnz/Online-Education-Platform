@@ -8,15 +8,13 @@ import java.util.List;
 
 public class Student {
     private String username;
-    private String password;
     private int courseNumber; // 1, 2, or 3
     private List<Course> enrolledCourses = new ArrayList<>();
     private List<Message> messages = new ArrayList<>();
     private int point = 0;
 
-    public Student(String username, String password, int courseNumber) {
+    public Student(String username, int courseNumber) {
         this.username = username;
-        this.password = password;
         this.courseNumber = courseNumber;
     }
 
