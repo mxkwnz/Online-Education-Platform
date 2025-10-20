@@ -25,12 +25,28 @@ public class Main {
         System.out.print("Enter password: ");
         String password = sc.nextLine();
 
-        Student student = new Student(username, password);
+        // Ask for course number
+        int courseNumber = 0;
+        while (courseNumber < 1 || courseNumber > 3) {
+            System.out.print("Enter your course number (1, 2, or 3): ");
+            try {
+                courseNumber = Integer.parseInt(sc.nextLine());
+                if (courseNumber < 1 || courseNumber > 3) {
+                    System.out.println("Invalid course number. Please enter 1, 2, or 3.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+
+        Student student = new Student(username, password, courseNumber);
         allStudents.add(student);
 
         System.out.println("\nLogin successful! Welcome " + student.getUsername());
+        System.out.println("Course Level: " + student.getCourseNumber());
+        System.out.println("Available subjects for your course: " + student.getAvailableSubjects());
 
-        StudentPortalFacade portal = new StudentPortalFacade(allStudents,teachers);
+        StudentPortalFacade portal = new StudentPortalFacade(allStudents, teachers);
         portal.startPortal(student);
     }
 }
