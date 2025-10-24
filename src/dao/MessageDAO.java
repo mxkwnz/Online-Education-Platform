@@ -4,8 +4,7 @@ import db.DatabaseConnection;
 import model.Message;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class MessageDAO {
 
