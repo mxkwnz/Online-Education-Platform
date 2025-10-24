@@ -13,7 +13,6 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         TeacherDAO teacherDAO = new TeacherDAO();
         StudentDAO studentDAO = new StudentDAO();
-        SubjectDAO subjectDAO = new SubjectDAO();
 
         List<Teacher> teachers = teacherDAO.getAllTeachers();
 
