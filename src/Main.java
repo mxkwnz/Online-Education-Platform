@@ -1,23 +1,21 @@
-import course.facade.StudentPortalFacade;
+import dao.StudentDAO;
+import dao.TeacherDAO;
+import dao.SubjectDAO;
 import model.Student;
 import model.Teacher;
+import course.facade.StudentPortalFacade;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        TeacherDAO teacherDAO = new TeacherDAO();
+        StudentDAO studentDAO = new StudentDAO();
+        SubjectDAO subjectDAO = new SubjectDAO();
 
-        List<Teacher> teachers = new ArrayList<>(List.of(
-                new Teacher("Mr.Erbol", "mathematics"),
-                new Teacher("Mr.Imran", "programming"),
-                new Teacher("Ms.Aizya", "history"),
-                new Teacher("Ms.Aray", "english")
-        ));
-
-        List<Student> allStudents = new ArrayList<>();
+        List<Teacher> teachers = teacherDAO.getAllTeachers();
 
         System.out.println("---Online Education Platform---");
         System.out.print("Enter username: ");
@@ -25,28 +23,27 @@ public class Main {
         System.out.print("Enter password: ");
         String password = sc.nextLine();
 
-        // Ask for course number
-        int courseNumber = 0;
-        while (courseNumber < 1 || courseNumber > 3) {
-            System.out.print("Enter your course number (1, 2, or 3): ");
-            try {
-                courseNumber = Integer.parseInt(sc.nextLine());
-                if (courseNumber < 1 || courseNumber > 3) {
-                    System.out.println("Invalid course number. Please enter 1, 2, or 3.");
+        Student student = studentDAO.getStudent(username, password);
+        if (student == null) {
+            System.out.println("No existing account found. Creating new...");
+            int courseNumber = 0;
+            while (courseNumber < 1 || courseNumber > 3) {
+                System.out.print("Enter your course number (1, 2, or 3): ");
+                try {
+                    courseNumber = Integer.parseInt(sc.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number.");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
             }
+            student = new Student(username, courseNumber);
+            studentDAO.insertStudent(student, password);
         }
 
-        Student student = new Student(username, courseNumber);
-        allStudents.add(student);
-
-        System.out.println("\nLogin successful! Welcome " + student.getUsername());
-        System.out.println("Course Level: " + student.getCourseNumber());
-        System.out.println("Available subjects for your course: " + student.getAvailableSubjects());
+        List<Student> allStudents = studentDAO.getAllStudents();
+        System.out.println("\nWelcome " + student.getUsername() + "!");
 
         StudentPortalFacade portal = new StudentPortalFacade(allStudents, teachers);
         portal.startPortal(student);
+        studentDAO.updatePoints(student);
     }
 }

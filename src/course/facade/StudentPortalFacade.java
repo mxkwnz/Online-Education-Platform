@@ -1,10 +1,14 @@
 package course.facade;
+
 import course.Course;
 import course.builder.CourseBuilder;
 import course.decorator.MentorSupportDecorator;
+import dao.MessageDAO;
+import dao.SubjectDAO;
 import model.Message;
 import model.Student;
 import model.Teacher;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,6 +16,8 @@ public class StudentPortalFacade {
     private Scanner scanner = new Scanner(System.in);
     private List<Student> allStudents;
     private List<Teacher> allTeachers;
+    private SubjectDAO subjectDAO = new SubjectDAO();
+    private MessageDAO messageDAO = new MessageDAO();
 
     public StudentPortalFacade(List<Student> students, List<Teacher> teachers) {
         this.allStudents = students;
@@ -45,7 +51,10 @@ public class StudentPortalFacade {
                 case 7 -> showTeachers();
                 case 8 -> messageMentor(student);
                 case 9 -> student.showMessages();
-                case 10 -> { System.out.println("Logged out."); return; }
+                case 10 -> {
+                    System.out.println("Logged out.");
+                    return;
+                }
                 default -> System.out.println("Invalid option.");
             }
         }
@@ -53,7 +62,13 @@ public class StudentPortalFacade {
 
     private void enrollCourse(Student student) {
         System.out.println("\nAvailable courses for Course " + student.getCourseNumber() + ":");
-        List<String> availableSubjects = student.getAvailableSubjects();
+
+        List<String> availableSubjects = subjectDAO.getSubjectsByCourse(student.getCourseNumber());
+
+        if (availableSubjects.isEmpty()) {
+            System.out.println("No subjects found for this course in the database.");
+            return;
+        }
 
         for (int i = 0; i < availableSubjects.size(); i++) {
             System.out.println((i + 1) + ". " + availableSubjects.get(i));
@@ -72,7 +87,7 @@ public class StudentPortalFacade {
 
         System.out.println("\nAvailable teachers for this subject:");
         allTeachers.stream()
-                .filter(t -> t.getSubject().equalsIgnoreCase(type.toLowerCase()))
+                .filter(t -> t.getSubject().equalsIgnoreCase(type))
                 .forEach(t -> System.out.println("- " + t.getName()));
 
         System.out.print("Enter teacher name: ");
@@ -94,8 +109,8 @@ public class StudentPortalFacade {
                 .setGamification(promptYesNo("Add Gamification?"))
                 .build();
 
-        if(student.isEnrolled(course.getCourseName())){
-            System.out.println("You have already enrolled to the course.");
+        if (student.isEnrolled(course.getCourseName())) {
+            System.out.println("You have already enrolled to this course.");
             return;
         }
 
@@ -111,7 +126,7 @@ public class StudentPortalFacade {
     private void exitCourse(Student student) {
         System.out.print("\nEnter course name to exit: ");
         String name = scanner.nextLine();
-        if(student.isEnrolled(name)){
+        if (student.isEnrolled(name)) {
             student.removeCourse(name);
             System.out.println("Successfully exited from " + name);
         } else {
@@ -122,7 +137,7 @@ public class StudentPortalFacade {
     private void startLearning(Student student) {
         System.out.print("\nEnter course name to start learning: ");
         String name = scanner.nextLine();
-        if (!student.isEnrolled(name)){
+        if (!student.isEnrolled(name)) {
             System.out.println("You have not enrolled in that course");
             return;
         }
@@ -190,11 +205,14 @@ public class StudentPortalFacade {
 
         Message message = new Message(student.getUsername(), mentorName, messageContent);
         student.addMessage(message);
+        messageDAO.insertMessage(message);
+
         System.out.println("Message sent!");
 
         String mentorResponse = generateMentorResponse(messageContent);
         Message response = new Message(mentorName, student.getUsername(), mentorResponse);
         student.addMessage(response);
+        messageDAO.insertMessage(response);
         System.out.println("\n[Mentor Reply]: " + mentorResponse);
     }
 
@@ -219,10 +237,8 @@ public class StudentPortalFacade {
     }
 
     private String generateMentorResponse(String msg) {
-        if(true){
-            return ("No");
-        }
-        return null;}
+        return "NO.";
+    }
 
     private void showLeaderboard() {
         System.out.println("\nLeaderboard:");
